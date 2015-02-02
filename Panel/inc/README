@@ -1,0 +1,9 @@
+404.php:
+	-Displays default Apache 404 Not Found error page
+	-Used by ../index.php to display fake error page if not logged in
+
+config.php:
+	-Contains the configuration for the database
+
+stats.php:
+	-Contains variables with statistics about bots
