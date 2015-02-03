@@ -26,13 +26,18 @@ function loggedIn($odb)
 				{
 					return false;
 				}else{
-					$sel = $odb->query("SELECT password FROM users WHERE username = '".$user[0]."'");
-					$pass = md5($sel->fetchColumn(0));
-					if ($user[1] == $pass)
+					$sel = $odb->query("SELECT * FROM users WHERE username = '".$user[0]."'");
+					$u = $sel->fetch(PDO::FETCH_ASSOC);
+					if ($u['id'] != $user[1])
 					{
-						return true;
-					}else{
 						return false;
+					}else{
+						if ($u['status'] == "1")
+						{
+							return true;
+						}else{
+							return false;
+						}
 					}
 				}
 			}
