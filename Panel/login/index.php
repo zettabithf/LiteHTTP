@@ -54,7 +54,7 @@ if (isset($_POST['doLogin']))
 					<input type="password" name="password" class="form-control" placeholder="Password">
 				</div>
 				<div class="form-group">
-					<input type="text" name="captcha_code" class="form-control" placeholder="Captcha Code">
+					<input type="text" name="captcha_code" class="form-control" maxlength="6" placeholder="Captcha Code">
 				</div>
 				<center><img id="captcha" src="../securimage/securimage_show.php" alt="CAPTCHA Image" /></center>
 			</div>

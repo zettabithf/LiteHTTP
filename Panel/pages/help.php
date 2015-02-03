@@ -51,7 +51,7 @@ include 'inc/stats.php';
 		<aside class="left-side sidebar-offcanvas">
 			<section class="sidebar">
 				<ul class="sidebar-menu">
-					<li class="active">
+					<li>
 						<a href="?p=main">
 							<i class="fa fa-dashboard"></i> <span>Dashboard</span>
 						</a>
@@ -82,7 +82,7 @@ include 'inc/stats.php';
 							<i class="fa fa-list-alt"></i> <span>Panel Logs</span>
 						</a>
 					</li>
-					<li>
+					<li class="active">
 						<a href="?p=help">
 							<i class="fa fa-question"></i> <span>Help</span>
 						</a>
@@ -92,43 +92,16 @@ include 'inc/stats.php';
 		</aside>
 		<aside class="right-side">
 			<section class="content">
-				<div class="row">
-					<div class="col-lg-4 col-xs-9">
-                            		<div class="small-box bg-green">
-                                			<div class="inner">
-                                    			<h3><?php echo $online; ?></h3>
-                                    			<p>Bots Online</p>
-                                			</div>
-							<div class="icon">
-                                    			<i class="fa fa-cloud-upload"></i>
-                                			</div>
-							<a class="small-box-footer"><br></a>
-                            		</div>
-                        		</div>
-					<div class="col-lg-4 col-xs-9">
-						<div class="small-box bg-red">
-							<div class="inner">
-								<h3><?php echo $dead; ?></h3>
-								<p>Dead Bots</p>
-							</div>
-							<div class="icon">
-								<i class="fa fa-close"></i>
-							</div>
-							<a class="small-box-footer"><br></a>
-						</div>
-					</div>
-					<div class="col-lg-4 col-xs-9">
-						<div class="small-box bg-aqua">
-							<div class="inner">
-								<h3><?php echo $total; ?></h3>
-								<p>Total Bots</p>
-							</div>
-							<div class="icon">
-								<i class="fa fa-list"></i>
-							</div>
-							<a class="small-box-footer"><br></a>
-						</div>
-					</div>
+				<div class="col-lg-6 col-xs-12">
+					<h2>Panel Help</h2>
+					<br>
+					<h4><b>What are dead bots?</b></h4>
+					<p>Bots that are marked <b>dead</b> have not connected to the panel in a specified amount of days. For example, the default limit is 7 days. Bots that have not connected to the panel within 7 days from their last connection, are then marked dead.</p>
+				</div>
+				<div class="col-lg-6 col-xs-12">
+					<h2>Bot Help</h2>
+					<br>
+					<h4><b></b></h4>
 				</div>
 			</section>
 		</aside>
