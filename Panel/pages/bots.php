@@ -3,6 +3,8 @@ $u = explode(":", $_SESSION['LiteHTTP']);
 $username = $u[0];
 
 include 'inc/stats.php';
+include 'inc/geo/geoip.inc';
+$gi = geoip_open("inc/geo/GeoIP.dat");
 ?>
 <!DOCTYPE html>
 <html>
@@ -14,6 +16,7 @@ include 'inc/stats.php';
 	<link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" />
 	<link href="css/ionicons.min.css" rel="stylesheet" type="text/css" />
 	<link href="css/main.css" rel="stylesheet" type="text/css" />
+	<link href="css/datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
 	<!--[if lt IE 9]>
 		<script src="js/html5shiv.js"></script>
 		<script src="js/respond.min.js"></script>
@@ -51,12 +54,12 @@ include 'inc/stats.php';
 		<aside class="left-side sidebar-offcanvas">
 			<section class="sidebar">
 				<ul class="sidebar-menu">
-					<li class="active">
+					<li>
 						<a href="?p=main">
 							<i class="fa fa-dashboard"></i> <span>Dashboard</span>
 						</a>
 					</li>
-					<li>
+					<li class="active">
 						<a href="?p=bots">
 							<i class="fa fa-list"></i> <span>Bots</span>
 							<small class="badge pull-right bg-green"><?php echo $online; ?></small>
@@ -93,59 +96,50 @@ include 'inc/stats.php';
 		<aside class="right-side">
 			<section class="content">
 				<div class="row">
-					<div class="col-lg-4 col-xs-9">
-                            		<div class="small-box bg-green">
-                                			<div class="inner">
-                                    			<h3><?php echo $online; ?></h3>
-                                    			<p>Bots Online</p>
-                                			</div>
-							<div class="icon">
-                                    			<i class="fa fa-cloud-upload"></i>
-                                			</div>
-							<a class="small-box-footer"><br></a>
-                            		</div>
-                        		</div>
-					<div class="col-lg-4 col-xs-9">
-						<div class="small-box bg-red">
-							<div class="inner">
-								<h3><?php echo $dead; ?></h3>
-								<p>Dead Bots</p>
-							</div>
-							<div class="icon">
-								<i class="fa fa-close"></i>
-							</div>
-							<a class="small-box-footer"><br></a>
-						</div>
-					</div>
-					<div class="col-lg-4 col-xs-9">
-						<div class="small-box bg-aqua">
-							<div class="inner">
-								<h3><?php echo $total; ?></h3>
-								<p>Total Bots</p>
-							</div>
-							<div class="icon">
-								<i class="fa fa-list"></i>
-							</div>
-							<a class="small-box-footer"><br></a>
-						</div>
-					</div>
-				</div>
-				<div class="row">
 					<div class="col-lg-12 col-xs-24">
-						<h3>Last 5 Installations</h3>
-						<table id="lastfive" class="table table-condensed table-hover table-striped table-bordered">
+						<table id="botlist" class="table table-condensed table-hover table-striped table-bordered">
 							<thead>
 								<tr>
 									<th>#</th>
 									<th>IP Address</th>
 									<th>Country</th>
+									<th>Last Response</th>
+									<th>Current Task</th>
 									<th>Operating System</th>
-									<th>Privileges</th>
 									<th>Bot Version</th>
+									<th>Status</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr></tr>
+								<?php
+								$bots = $odb->query("SELECT * FROM bots ORDER BY lastresponse DESC");
+								$unix = $odb->query("SELECT UNIX_TIMESTAMP()")->fetchColumn(0);
+								while ($b = $bots->fetch(PDO::FETCH_ASSOC))
+								{
+									$id = $b['id'];
+									$ip = $b['ipaddress'];
+									$cn = geoip_country_name_by_id($gi, $b['country']);
+									$fl = strtolower(geoip_country_code_by_id($gi, $b['country']));
+									$lrd = $b['lastresponse'];
+									$lr = date("m-d-Y, h:i A", $lrd);
+									$ct = $b['currenttask'];
+									$os = $b['operatingsys'];
+									$bv = $b['botversion'];
+									$st = "";
+									if (($lrd + ($knock + 120)) > $unix)
+									{
+										$st = '<small class="badge bg-green">Online</small>';
+									}else{
+										if ($lrd + $deadi < $unix)
+										{
+											$st = '<small class="badge bg-red">Dead</small>';
+										}else{
+											$st = '<small class="badge bg-yellow">Offline</small>';
+										}
+									}
+									echo '<tr><td>'.$id.'</td><td><a href="?p=details&id='.$id.'">'.$ip.'</a></td><td>'.$cn.'&nbsp;&nbsp;<img src="img/flags/'.$fl.'.png" /></td><td data-order="'.$lrd.'">'.$lr.'</td><td>#'.$ct.'</td><td>'.$os.'</td><td>'.$bv.'</td><td>'.$st.'</td></tr>';
+								}
+								?>
 							</tbody>
 						</table>
 					</div>
@@ -156,5 +150,19 @@ include 'inc/stats.php';
 	<script src="js/jquery.min.js" type="text/javascript"></script>
 	<script src="js/bootstrap.min.js" type="text/javascript"></script>
 	<script src="js/jquery-ui.min.js" type="text/javascript"></script>
+	<script src="js/plugins/datatables/jquery.dataTables.js" type="text/javascript"></script>
+	<script src="js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#botlist").dataTable({
+				"order": [[ 3, "desc" ]],
+				"iDisplayLength": 25,
+				"aLengthMenu": [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"]],
+				"oLanguage": {
+					"sEmptyTable": "No data to display"
+				}
+			});
+		});
+	</script>
 </body>
 </html>
