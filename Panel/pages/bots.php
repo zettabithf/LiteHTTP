@@ -157,7 +157,7 @@ $gi = geoip_open("inc/geo/GeoIP.dat");
 			$("#botlist").dataTable({
 				"order": [[ 3, "desc" ]],
 				"iDisplayLength": 25,
-				"aLengthMenu": [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"]],
+				"aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
 				"oLanguage": {
 					"sEmptyTable": "No data to display"
 				}

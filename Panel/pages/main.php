@@ -3,6 +3,8 @@ $u = explode(":", $_SESSION['LiteHTTP']);
 $username = $u[0];
 
 include 'inc/stats.php';
+include 'inc/geo/geoip.inc';
+$gi = geoip_open("inc/geo/GeoIP.dat");
 ?>
 <!DOCTYPE html>
 <html>
@@ -139,13 +141,111 @@ include 'inc/stats.php';
 									<th>#</th>
 									<th>IP Address</th>
 									<th>Country</th>
+									<th>Install Date</th>
 									<th>Operating System</th>
 									<th>Privileges</th>
 									<th>Bot Version</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr></tr>
+								<?php
+								if ($total != "0")
+								{
+									$bots = $odb->query("SELECT * FROM bots ORDER BY installdate DESC LIMIT 5");
+									while ($b = $bots->fetch(PDO::FETCH_ASSOC))
+									{
+										$id = $b['id'];
+										$ip = $b['ipaddress'];
+										$cn = geoip_country_name_by_id($gi, $b['country']);
+										$fl = strtolower(geoip_country_code_by_id($gi, $b['country']));
+										$in = date("m-d-Y, h:i A", $b['installdate']);
+										$os = $b['operatingsys'];
+										$pv = $b['privileges'];
+										$bv = $b['botversion'];
+										echo '<tr><td>'.$id.'</td><td>'.$ip.'</td><td>'.$cn.'&nbsp;&nbsp;<img src="img/flags/'.$fl.'.png" /></td><td>'.$in.'</td><td>'.$os.'</td><td>'.$pv.'</td><td>'.$bv.'</td></tr>';
+									}
+								}else{
+									echo '<tr class="odd"><td colspan="8">No data to display</td></tr>';
+								}
+								?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<br><br>
+				<div class="row">
+					<div class="col-lg-4 col-xs-8">
+						<h3>Top 3 Countries</h3>
+						<table id="topcountries" class="table table-condensed table-hover table-striped table-bordered">
+							<thead>
+								<tr>
+									<th>Country</th>
+									<th># of Bots</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php
+								if ($total != "0")
+								{
+									$csel = $odb->query("SELECT country, COUNT(*) AS cnt FROM bots GROUP BY country ORDER BY cnt DESC LIMIT 3");
+									while ($c = $csel->fetch())
+									{
+										echo '<tr><td>'.geoip_country_name_by_id($gi, $c[0]).'</td><td>'.number_format($c[1]).'</td></tr>';
+									}
+								}else{
+									echo '<tr class="odd"><td colspan="8">No data to display</td></tr>';
+								}
+								?>
+							</tbody>
+						</table>
+					</div>
+					<div class="col-lg-4 col-xs-8">
+						<h3>Top 3 Operating Systems</h3>
+						<table id="topcountries" class="table table-condensed table-hover table-striped table-bordered">
+							<thead>
+								<tr>
+									<th>Operating System</th>
+									<th># of Bots</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php
+								if ($total != "0")
+								{
+									$osel = $odb->query("SELECT operatingsys, COUNT(*) AS cnt FROM bots GROUP BY operatingsys ORDER BY cnt DESC LIMIT 3");
+									while ($o = $osel->fetch())
+									{
+										echo '<tr><td>'.$o[0].'</td><td>'.number_format($o[1]).'</td></tr>';
+									}
+								}else{
+									echo '<tr class="odd"><td colspan="8">No data to display</td></tr>';
+								}
+								?>
+							</tbody>
+						</table>
+					</div>
+					<div class="col-lg-4 col-xs-8">
+						<h3>Privileges</h3>
+						<table id="topcountries" class="table table-condensed table-hover table-striped table-bordered">
+							<thead>
+								<tr>
+									<th>Privilege</th>
+									<th># of Bots</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php
+								if ($total != "0")
+								{
+									$psel = $odb->query("SELECT privileges, COUNT(*) AS cnt FROM bots GROUP BY privileges ORDER BY cnt DESC");
+									while ($p = $psel->fetch())
+									{
+										echo '<tr><td>'.$p[0].'</td><td>'.number_format($p[1]).'</td></tr>';
+									}
+								}else{
+									echo '<tr class="odd"><td colspan="8">No data to display</td></tr>';
+								}
+								?>
 							</tbody>
 						</table>
 					</div>
