@@ -1,0 +1,17 @@
+What is it?
+-LiteHTTP is an HTTP bot that is being programmed in C#, on the .NET 2.0 dependency.
+
+Expected Features
+-Panel
+--Custom coded with a sleek yet maneuverable design
+--Ability to have more than 1 user
+--User privileges
+--Action logs for all users
+-Bot
+--Download & execute (with option to inject if native)
+--Visit webpage (visible or hidden)
+--Startup (with persistence)
+--Information about bot (aka. OS, version, installed location, etc.)
+--Basic botkiller (nothing fancy)
+--Update
+--Uninstall
