@@ -4,7 +4,7 @@ $username = $u[0];
 
 include 'inc/stats.php';
 include 'inc/geo/geoip.inc';
-$gi = geoip_open("inc/geo/GeoIP.dat");
+$gi = geoip_open("inc/geo/GeoIP.dat", "");
 ?>
 <!DOCTYPE html>
 <html>

@@ -13,14 +13,16 @@ if (isset($_POST['doLogin']))
 		$password = hash("sha256", $_POST['password']);
 		if (ctype_alnum($username))
 		{
-			$sel = $odb->prepare("SELECT password FROM users WHERE username = :user");
+			$sel = $odb->prepare("SELECT id,password FROM users WHERE username = :user");
 			$sel->execute(array(":user" => $username));
-			$pass = $sel->fetchColumn(0);
+			list($userid,$pass) = $sel->fetch();
 			if ($pass != "" || $pass != NULL)
 			{
 				if ($password == $pass)
 				{
-					$_SESSION['LiteHTTP'] = $username.":".md5($password);
+					$i = $odb->prepare("INSERT INTO plogs VALUES(NULL, :user, :ip, :act, UNIX_TIMESTAMP())");
+					$i->execute(array(":user" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":act" => "Logged in"));
+					$_SESSION['LiteHTTP'] = $username.":".$userid;
 					header("Location: ../");
 				}
 			}

@@ -59,7 +59,7 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 							<i class="fa fa-dashboard"></i> <span>Dashboard</span>
 						</a>
 					</li>
-					<li class="active">
+					<li>
 						<a href="?p=bots">
 							<i class="fa fa-list"></i> <span>Bots</span>
 							<small class="badge pull-right bg-green"><?php echo $online; ?></small>
@@ -80,7 +80,7 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 							<i class="fa fa-users"></i> <span>Users</span>
 						</a>
 					</li>
-					<li>
+					<li class="active">
 						<a href="?p=logs">
 							<i class="fa fa-list-alt"></i> <span>Panel Logs</span>
 						</a>
@@ -97,47 +97,38 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 			<section class="content">
 				<div class="row">
 					<div class="col-lg-12 col-xs-24">
+						<div id="alerts">
+							<?php
+							if (isset($_POST['doClear']))
+							{
+								$odb->query("TRUNCATE plogs");
+								echo '<div class="alert alert-success">All logs have been cleared.</div>';
+							}
+							?>
+						</div>
 						<table id="botlist" class="table table-condensed table-hover table-striped table-bordered">
 							<thead>
 								<tr>
 									<th>#</th>
+									<th>Username</th>
 									<th>IP Address</th>
-									<th>Country</th>
-									<th>Last Response</th>
-									<th>Current Task</th>
-									<th>Operating System</th>
-									<th>Bot Version</th>
-									<th>Status</th>
+									<th>Action</th>
+									<th>Date</th>
 								</tr>
 							</thead>
 							<tbody>
 								<?php
-								$bots = $odb->query("SELECT * FROM bots ORDER BY lastresponse DESC");
-								$unix = $odb->query("SELECT UNIX_TIMESTAMP()")->fetchColumn(0);
-								while ($b = $bots->fetch(PDO::FETCH_ASSOC))
+								$logs = $odb->query("SELECT * FROM plogs ORDER BY date DESC");
+								while ($l = $logs->fetch(PDO::FETCH_ASSOC))
 								{
-									$id = $b['id'];
-									$ip = $b['ipaddress'];
-									$cn = geoip_country_name_by_id($gi, $b['country']);
-									$fl = strtolower(geoip_country_code_by_id($gi, $b['country']));
-									$lrd = $b['lastresponse'];
-									$lr = date("m-d-Y, h:i A", $lrd);
-									$ct = $b['currenttask'];
-									$os = $b['operatingsys'];
-									$bv = $b['botversion'];
-									$st = "";
-									if (($lrd + ($knock + 120)) > $unix)
-									{
-										$st = '<small class="badge bg-green">Online</small>';
-									}else{
-										if ($lrd + $deadi < $unix)
-										{
-											$st = '<small class="badge bg-red">Dead</small>';
-										}else{
-											$st = '<small class="badge bg-yellow">Offline</small>';
-										}
-									}
-									echo '<tr><td>'.$id.'</td><td><a href="?p=details&id='.$id.'">'.$ip.'</a></td><td>'.$cn.'&nbsp;&nbsp;<img src="img/flags/'.$fl.'.png" /></td><td data-order="'.$lrd.'">'.$lr.'</td><td>#'.$ct.'</td><td>'.$os.'</td><td>'.$bv.'</td><td>'.$st.'</td></tr>';
+									$id = $l['id'];
+									$user = $l['username'];
+									$ip = $l['ipaddress'];
+									$action = $l['action'];
+									$ldate = $l['date'];
+									$date = date("m-d-Y, h:i A", $ldate);
+									$flag = strtolower(geoip_country_code_by_addr($gi, $ip));
+									echo '<tr><td>'.$id.'</td><td>'.$user.'</td><td>'.$ip.'&nbsp;<img src="img/flags/'.$flag.'.png" /></td><td>'.$action.'</td><td data-order="'.$ldate.'">'.$date.'</td></tr>';
 								}
 								?>
 							</tbody>
@@ -155,13 +146,15 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$("#botlist").dataTable({
-				"order": [[ 3, "desc" ]],
+				"order": [[ 4, "desc" ]],
 				"iDisplayLength": 25,
 				"aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+				"sDom": '<"ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix"lfr>R<C><"#clearall">T<"clear">t<"ui-toolbar ui-widget-header ui-corner-bl ui-corner-br ui-helper-clearfix"p>',
 				"oLanguage": {
 					"sEmptyTable": "No data to display"
 				}
 			});
+			$("#clearall").html('<center><form action="" method="POST"><input type="submit" class="btn btn-danger" name="doClear" value="Clear All Logs"></form></center>');
 		});
 	</script>
 </body>
