@@ -107,6 +107,7 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 									<th>Current Task</th>
 									<th>Operating System</th>
 									<th>Bot Version</th>
+									<th>Mark</th>
 									<th>Status</th>
 								</tr>
 							</thead>
@@ -126,6 +127,7 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 									$os = $b['operatingsys'];
 									$bv = $b['botversion'];
 									$st = "";
+									$mk = "";
 									if (($lrd + ($knock + 120)) > $unix)
 									{
 										$st = '<small class="badge bg-green">Online</small>';
@@ -137,13 +139,19 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 											$st = '<small class="badge bg-yellow">Offline</small>';
 										}
 									}
-									echo '<tr><td>'.$id.'</td><td><a href="?p=details&id='.$id.'">'.$ip.'</a></td><td>'.$cn.'&nbsp;&nbsp;<img src="img/flags/'.$fl.'.png" /></td><td data-order="'.$lrd.'">'.$lr.'</td><td>#'.$ct.'</td><td>'.$os.'</td><td>'.$bv.'</td><td>'.$st.'</td></tr>';
+									if ($b['mark'] == "1")
+									{
+										$mk = '<small class="badge bg-green">Clean</small>';
+									}else{
+										$mk = '<small class="badge bg-red">Dirty</small>';
+									}
+									echo '<tr><td>'.$id.'</td><td><a id="details" data-toggle="tooltip" title="View All Details" href="?p=details&id='.$id.'">'.$ip.'</a></td><td>'.$cn.'&nbsp;&nbsp;<img src="img/flags/'.$fl.'.png" /></td><td data-order="'.$lrd.'">'.$lr.'</td><td>#'.$ct.'</td><td>'.$os.'</td><td>'.$bv.'</td><td>'.$mk.'</td><td>'.$st.'</td></tr>';
 								}
 								?>
 							</tbody>
 						</table>
 					</div>
-				</div>
+				</div>	
 			</section>
 		</aside>
 	</div>

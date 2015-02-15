@@ -97,11 +97,15 @@ include 'inc/stats.php';
 					<br>
 					<h4><b>What are dead bots?</b></h4>
 					<p>Bots that are marked <b>dead</b> have not connected to the panel in a specified amount of days. For example, the default limit is 7 days. Bots that have not connected to the panel within 7 days from their last connection, are then marked dead.</p>
+					<br>
+					<h4><b>What is 'Mark'?</b></h4>
+					<p>A <b>Mark</b> is a way to tell if the bot is known as 'Clean' or 'Dirty'. Dirty bots usually have other malware loaded onto the system besides LiteHTTP's bot. The user (you) marks the bot as dirty when running a command on the panel. You can also mark the bot as clean for future reference.</p>
 				</div>
 				<div class="col-lg-6 col-xs-12">
 					<h2>Bot Help</h2>
 					<br>
-					<h4><b></b></h4>
+					<h4><b>What language is LiteHTTP programmed in?</b></h4>
+					<p>LiteHTTP is programmed in <b>C#, using the .NET 2.0 Framework</b>.</p>
 				</div>
 			</section>
 		</aside>
