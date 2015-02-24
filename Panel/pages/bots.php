@@ -145,7 +145,7 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 									}else{
 										$mk = '<small class="badge bg-red">Dirty</small>';
 									}
-									echo '<tr><td>'.$id.'</td><td><a id="details" data-toggle="tooltip" title="View All Details" href="?p=details&id='.$id.'">'.$ip.'</a></td><td>'.$cn.'&nbsp;&nbsp;<img src="img/flags/'.$fl.'.png" /></td><td data-order="'.$lrd.'">'.$lr.'</td><td>#'.$ct.'</td><td>'.$os.'</td><td>'.$bv.'</td><td>'.$mk.'</td><td>'.$st.'</td></tr>';
+									echo '<tr><td>'.$id.'</td><td><a id="details" data-toggle="tooltip" title="View All Details" href="?p=details&id='.$id.'">'.$ip.'</a></td><td>'.$cn.'&nbsp;&nbsp;<img src="img/flags/'.$fl.'.png" /></td><td data-order="'.$lrd.'">'.$lr.'</td><td>#'.$ct.'</td><td>'.$os.'</td><td>'.$bv.'</td><td><center>'.$mk.'</center></td><td><center>'.$st.'</center></td></tr>';
 								}
 								?>
 							</tbody>
