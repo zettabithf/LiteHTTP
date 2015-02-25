@@ -1,6 +1,7 @@
 <?php
 $u = explode(":", $_SESSION['LiteHTTP']);
 $username = $u[0];
+$userperms = $odb->query("SELECT privileges FROM users WHERE username = '".$username."'")->fetchColumn(0);
 
 include 'inc/stats.php';
 ?>
@@ -95,6 +96,11 @@ include 'inc/stats.php';
 				<div class="row">
 					<div class="col-lg-12 col-xs-24">
 						<?php
+						if ($userperms != "admin")
+						{
+							echo '<div class="alert alert-danger">You do not have permission to view this page.</div>';
+							die();
+						}
 						if (isset($_GET['clear']))
 						{
 							$clear = strtolower($_GET['clear']);

@@ -1,7 +1,6 @@
 <?php
 $u = explode(":", $_SESSION['LiteHTTP']);
 $username = $u[0];
-$userperms = $odb->query("SELECT privileges FROM users WHERE username = '".$username."'")->fetchColumn(0);
 
 include 'inc/stats.php';
 ?>
@@ -63,7 +62,7 @@ include 'inc/stats.php';
 							<small class="badge pull-right bg-green"><?php echo $online; ?></small>
 						</a>
 					</li>
-					<li class="active">
+					<li>
 						<a href="?p=tasks">
 							<i class="fa fa-bar-chart"></i> <span>Tasks</span>
 						</a>

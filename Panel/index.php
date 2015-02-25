@@ -12,7 +12,7 @@ if (!isset($_GET['p']))
 {
 	include_once("pages/main.php");
 }else{
-	$pages = array("main", "bots", "details", "tasks", "settings", "users", "logs", "help", "account", "logout");
+	$pages = array("main", "bots", "details", "tasks", "settings", "edituser", "users", "logs", "help", "account", "logout");
 	$page = $_GET['p'];
 	if (in_array($page, $pages))
 	{
