@@ -6,7 +6,6 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
-
 -- --------------------------------------------------------
 
 --
@@ -70,6 +69,37 @@ INSERT INTO `settings` (`id`, `knock`, `dead`, `gate_status`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `tasks`
+--
+
+CREATE TABLE IF NOT EXISTS `tasks` (
+  `id` int(255) NOT NULL AUTO_INCREMENT,
+  `task` varchar(100) NOT NULL,
+  `params` text NOT NULL,
+  `filters` text NOT NULL,
+  `executions` varchar(100) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `status` int(1) NOT NULL,
+  `date` int(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tasks_completed`
+--
+
+CREATE TABLE IF NOT EXISTS `tasks_completed` (
+  `id` int(255) NOT NULL AUTO_INCREMENT,
+  `bothwid` varchar(100) NOT NULL,
+  `taskid` int(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -80,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `privileges` varchar(300) NOT NULL,
   `status` int(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
 
 --
 -- Dumping data for table `users`

@@ -114,10 +114,13 @@ include 'inc/stats.php';
 									{
 										case "1":
 											$perm = "user";
+											break;
 										case "2":
 											$perm = "moderator";
+											break;
 										case "3":
 											$perm = "admin";
+											break;
 									}
 									$i = $odb->prepare("INSERT INTO users VALUES(NULL, :u, :p, :pr, '1')");
 									$i->execute(array(":u" => $user, ":p" => $pass, ":pr" => $perm));
@@ -182,87 +185,87 @@ include 'inc/stats.php';
 							}
 						}
 						?>
-						<div class="col-lg-6 col-xs-12">
-							<div class="nav-tabs-custom">
-								<ul class="nav nav-tabs">
-									<li class="active">
-										<a href="#man" data-toggle="tab">Manage</a>
-									</li>
-									<li>
-										<a href="#add" data-toggle="tab">Add User</a>
-									</li>
-								</ul>
-								<div class="tab-content">
-									<div class="tab-pane active" id="man">
-										<table class="table table-condensed table-bordered table-hover">
-											<thead>
-												<tr>
-													<th>#</th>
-													<th>Username</th>
-													<th>Permission</th>
-													<th>Last Access Date</th>
-													<th>Actions</th>
-												</tr>
-											</thead>
-											<tbody>
-												<?php
-												$users = $odb->query("SELECT * FROM users");
-												while ($us = $users->fetch(PDO::FETCH_ASSOC))
+					</div>
+					<div class="col-lg-6 col-xs-12">
+						<div class="nav-tabs-custom">
+							<ul class="nav nav-tabs">
+								<li class="active">
+									<a href="#man" data-toggle="tab">Manage</a>
+								</li>
+								<li>
+									<a href="#add" data-toggle="tab">Add User</a>
+								</li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane active" id="man">
+									<table class="table table-condensed table-bordered table-hover">
+										<thead>
+											<tr>
+												<th>#</th>
+												<th>Username</th>
+												<th>Permission</th>
+												<th>Last Access Date</th>
+												<th>Actions</th>
+											</tr>
+										</thead>
+										<tbody>
+											<?php
+											$users = $odb->query("SELECT * FROM users");
+											while ($us = $users->fetch(PDO::FETCH_ASSOC))
+											{
+												$lds = $odb->prepare("SELECT date FROM plogs WHERE username = :u AND action = 'Logged in' ORDER BY date LIMIT 1");
+												$lds->execute(array(":u" => $us['username']));
+												$ld = $lds->fetchColumn(0);
+												if ($ld == NULL || $ld == "")
 												{
-													$lds = $odb->prepare("SELECT date FROM plogs WHERE username = :u AND action = 'Logged in' ORDER BY date LIMIT 1");
-													$lds->execute(array(":u" => $us['username']));
-													$ld = $lds->fetchColumn(0);
-													if ($ld == NULL || $ld == "")
-													{
-														$ld = "Never";
-													}else{
-														$ld = date("m-d-Y, h:i A", $ld);
-													}
-													$stat = "";
-													if ($us['status'] == "1")
-													{
-														$stat = '<a href="?p=users&ban='.$us['id'].'" title="Ban User"><i class="fa fa-lock"></i></a>';
-													}else{
-														$stat = '<a href="?p=users&ban='.$us['id'].'" title="Unban User"><i class="fa fa-unlock-alt"></i></a>';
-													}
-													echo '<tr><td>'.$us['id'].'</td><td>'.$us['username'].'</td><td>'.ucfirst($us['privileges']).'</td><td>'.$ld.'</td><td><center><a href="?p=edituser&id='.$us['id'].'" title="Edit User"><i class="fa fa-edit"></i></a>&nbsp;'.$stat.'&nbsp;<a href="?p=users&del='.$us['id'].'" title="Delete User"><i class="fa fa-times-circle"></i></a></center></td></tr>';
+													$ld = "Never";
+												}else{
+													$ld = date("m-d-Y, h:i A", $ld);
 												}
-												?>
-											</tbody>
-										</table>
-									</div>
-									<div class="tab-pane" id="add">
-										<form action="" method="POST" class="col-lg-6">
-											<label>Username</label>
-											<input type="text" class="form-control" name="username">
-											<br>
-											<label>Password</label>
-											<input type="password" class="form-control" name="password">
-											<br>
-											<label>Permissions</label>
-											<select class="form-control" name="permissions">
-												<option value="1">User</option>
-												<option value="2">Moderator</option>
-												<option value="3">Admin</option>
-											</select>
-											<br>
-											<center><input type="submit" name="doAdd" class="btn btn-danger" value="Add User"></center>
-										</form>
-										<div class="clearfix"></div>
-									</div>
+												$stat = "";
+												if ($us['status'] == "1")
+												{
+													$stat = '<a href="?p=users&ban='.$us['id'].'" title="Ban User"><i class="fa fa-lock"></i></a>';
+												}else{
+													$stat = '<a href="?p=users&ban='.$us['id'].'" title="Unban User"><i class="fa fa-unlock-alt"></i></a>';
+												}
+												echo '<tr><td>'.$us['id'].'</td><td>'.$us['username'].'</td><td>'.ucfirst($us['privileges']).'</td><td>'.$ld.'</td><td><center><a href="?p=edituser&id='.$us['id'].'" title="Edit User"><i class="fa fa-edit"></i></a>&nbsp;'.$stat.'&nbsp;<a href="?p=users&del='.$us['id'].'" title="Delete User"><i class="fa fa-times-circle"></i></a></center></td></tr>';
+											}
+											?>
+										</tbody>
+									</table>
+								</div>
+								<div class="tab-pane" id="add">
+									<form action="" method="POST" class="col-lg-6">
+										<label>Username</label>
+										<input type="text" class="form-control" name="username">
+										<br>
+										<label>Password</label>
+										<input type="password" class="form-control" name="password">
+										<br>
+										<label>Permissions</label>
+										<select class="form-control" name="permissions">
+											<option value="1">User</option>
+											<option value="2">Moderator</option>
+											<option value="3">Admin</option>
+										</select>
+										<br>
+										<center><input type="submit" name="doAdd" class="btn btn-danger" value="Add User"></center>
+									</form>
+									<div class="clearfix"></div>
 								</div>
 							</div>
 						</div>
-						<div class="col-lg-6 col-xs-12">
-							<h2>Help</h2>
-							<br>
-							<h4><b>Permissions</b></h4>
-							<p>The <b>User</b> permission limits the user to view and access bots, but cannot manage the settings, manage other users, view logs, or manage tasks the user did not create. The tasks this user cannot use are <b>Update, and Uninstall</b>.
-							<br><br>
-							The <b>Moderator</b> permission limits the user to view and access bots, manage other non-admin users, view logs, and manage tasks of other non-admin users, but cannot manage the settings. The tasks this user cannot use are <b>Update, and Uninstall</b>.
-							<br><br>
-							The <b>Admin</b> permission gives a user full access to the panel, allowing full control over other users and their tasks. This user can run any task.</p>
-						</div>
+					</div>
+					<div class="col-lg-6 col-xs-12">
+						<h2>Help</h2>
+						<br>
+						<h4><b>Permissions</b></h4>
+						<p>The <b>User</b> permission limits the user to view and access bots, but cannot manage the settings, manage other users, view logs, or manage tasks the user did not create. The tasks this user cannot use are <b>Update, and Uninstall</b>.
+						<br><br>
+						The <b>Moderator</b> permission limits the user to view and access bots, manage other non-admin users, view logs, and manage tasks of other non-admin users, but cannot manage the settings. The tasks this user cannot use are <b>Update, and Uninstall</b>.
+						<br><br>
+						The <b>Admin</b> permission gives a user full access to the panel, allowing full control over other users and their tasks. This user can run any task.</p>
 					</div>
 				</div>
 			</section>

