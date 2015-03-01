@@ -99,6 +99,11 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 					<div class="col-lg-12 col-xs-24">
 						<div id="alerts">
 							<?php
+							if ($userperms == "user")
+							{
+								echo '<div class="alert alert-danger">You do not have permission to view this page.</div>';
+								die();
+							}
 							if (isset($_POST['doClear']))
 							{
 								$odb->query("TRUNCATE plogs");
