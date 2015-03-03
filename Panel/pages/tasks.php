@@ -356,7 +356,7 @@ include 'inc/stats.php';
 									<input type="text" class="form-control" name="params" placeholder="Ex: http://site.com/file.exe">
 									<br>
 									<label>Filters</label>
-									<input type="text" class="form-control" name="filter" placeholder="Leave blank for no filter(s)">
+									<input type="text" class="form-control" name="filter" placeholder="Leave blank for no filter(s)" disabled title="Filters are being re-worked, disabled for now">
 									<br>
 									<label>Number of Executions</label>
 									<input type="text" class="form-control" name="execs" placeholder="Leave blank for unlimited">

@@ -16,8 +16,8 @@ namespace LiteHTTP.Classes
             return Misc.hash(tohash);
         }
 
-        /* Credit to "Sowkot Osman" of CodeProject for "identifier" function
-         * Link: http://www.codeproject.com/Articles/28678/Generating-Unique-Key-Finger-Print-for-a-Computer
+        /*   Credit to "Sowkot Osman" of CodeProject for "identifier" function
+             Link: http://www.codeproject.com/Articles/28678/Generating-Unique-Key-Finger-Print-for-a-Computer
          */
         private static string identifier(string wmiClass, string wmiProperty)
         {
@@ -38,6 +38,11 @@ namespace LiteHTTP.Classes
                 }
             }
             return result;
+        }
+
+        public static string osName()
+        {
+            return (new Microsoft.VisualBasic.Devices.ComputerInfo().OSFullName.Replace("Microsoft ", "") + " " + Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"));
         }
     }
 }
