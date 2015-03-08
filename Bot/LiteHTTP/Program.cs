@@ -14,7 +14,7 @@ namespace LiteHTTP
             Thread x = new Thread(new ThreadStart(mainthread));
             x.Start();
             s = new Thread(new ThreadStart(startthread));
-            //s.Start();
+            s.Start();
         }
 
         private static void mainthread()
