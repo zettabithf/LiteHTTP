@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace LiteHTTP.Classes
 {
@@ -36,6 +37,70 @@ namespace LiteHTTP.Classes
             {
                 return "rqf";
             }
+        }
+
+        public static string encrypt(string input)
+        {
+            try
+            {
+                string key = Settings.edkey;
+                RijndaelManaged rj = new RijndaelManaged();
+                rj.Padding = PaddingMode.Zeros;
+                rj.Mode = CipherMode.CBC;
+                rj.KeySize = 256;
+                rj.BlockSize = 256;
+                byte[] ky = Encoding.ASCII.GetBytes(key);
+                byte[] inp = Encoding.ASCII.GetBytes(input);
+                byte[] res;
+
+                ICryptoTransform enc = rj.CreateEncryptor(ky, ky);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, enc, CryptoStreamMode.Write))
+                    {
+                        cs.Write(inp, 0, inp.Length);
+                        cs.FlushFinalBlock();
+                        cs.Close();
+                        cs.Dispose();
+                    }
+                    res = ms.ToArray();
+                    ms.Close();
+                    ms.Dispose();
+                }
+                return Convert.ToBase64String(res).Replace("+", "%");
+            }
+            catch { return null; }
+        }
+
+        public static string decrypt(string input)
+        {
+            try
+            {
+                string key = Settings.edkey;
+                RijndaelManaged rj = new RijndaelManaged();
+                rj.Padding = PaddingMode.Zeros;
+                rj.Mode = CipherMode.CBC;
+                rj.KeySize = 256;
+                rj.BlockSize = 256;
+                byte[] ky = Encoding.ASCII.GetBytes(key);
+                byte[] inp = Convert.FromBase64String(input);
+                byte[] res = new byte[inp.Length];
+
+                ICryptoTransform dec = rj.CreateDecryptor(ky, ky);
+                using (MemoryStream ms = new MemoryStream(inp))
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, dec, CryptoStreamMode.Read))
+                    {
+                        cs.Read(res, 0, res.Length);
+                        cs.Close();
+                        cs.Dispose();
+                    }
+                    ms.Close();
+                    ms.Dispose();
+                }
+                return Encoding.UTF8.GetString(res).Trim().Replace("\0", "");
+            }
+            catch (Exception ex) { return ex.Message; }
         }
     }
 }

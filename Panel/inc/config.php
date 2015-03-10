@@ -46,4 +46,18 @@ function loggedIn($odb)
 		return false;
 	}
 }
+
+function encrypt($key, $stre)
+{
+	$rtn = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $stre, MCRYPT_MODE_CBC, $key);
+	return base64_encode($rtn);
+}
+
+function decrypt($key, $strd)
+{
+	$strd = str_replace("%", "+", $strd);
+	$rtn = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, base64_decode($strd), MCRYPT_MODE_CBC, $key);
+	$rtn = rtrim($rtn, "\0\4");
+	return $rtn;
+}
 ?>
