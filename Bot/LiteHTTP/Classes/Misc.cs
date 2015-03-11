@@ -23,7 +23,7 @@ namespace LiteHTTP.Classes
             MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
             byte[] temp = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < temp.Length - 1; i++)
+            for (int i = 0; i < temp.Length; i++)
             {
                 sb.Append(temp[i].ToString("x2"));
             }
