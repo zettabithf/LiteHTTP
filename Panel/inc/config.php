@@ -55,7 +55,7 @@ function encrypt($key, $stre)
 
 function decrypt($key, $strd)
 {
-	$strd = str_replace("%", "+", $strd);
+	$strd = str_replace("~", "+", $strd);
 	$rtn = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, base64_decode($strd), MCRYPT_MODE_CBC, $key);
 	$rtn = rtrim($rtn, "\0\4");
 	return $rtn;
