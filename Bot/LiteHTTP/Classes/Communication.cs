@@ -67,7 +67,7 @@ namespace LiteHTTP.Classes
                     ms.Close();
                     ms.Dispose();
                 }
-                return Convert.ToBase64String(res).Replace("+", "%");
+                return Convert.ToBase64String(res).Replace("+", "~");
             }
             catch { return null; }
         }
