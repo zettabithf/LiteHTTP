@@ -23,3 +23,5 @@ Expected Features
 <li>Update</li>
 <li>Uninstall</li>
 </ul>
+
+If you have any questions or concerns, you can email me here: zettabit@pedev.pw
