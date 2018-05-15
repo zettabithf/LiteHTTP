@@ -21,7 +21,7 @@ namespace LiteHTTP_Builder
 
         private void CompileApplication(string source, string destination, string resource, string success)
         {
-            CSharpCodeProvider ic = new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", "v2.0" } });
+            CSharpCodeProvider ic = new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", "v4.0" } });
             CompilerParameters cp = new CompilerParameters();
             CompilerResults cr;
             var Version = new Dictionary<string, string>();
@@ -34,7 +34,7 @@ namespace LiteHTTP_Builder
             cp.ReferencedAssemblies.Add("System.Windows.Forms.dll");
             cp.ReferencedAssemblies.Add("Microsoft.VisualBasic.dll");
             cp.CompilerOptions = "/filealign:0x00200 /optimize+ /platform:X86 /debug- /target:winexe";
-            Version.Add("CompilerVersion", "v2.0");
+            Version.Add("CompilerVersion", "v4.0");
             if (resource.Length > 3)
             {
                 cp.EmbeddedResources.Add(resource);
