@@ -1,6 +1,6 @@
 What is it?
 -----------
-<b>LiteHTTP</b> is an HTTP bot that is being programmed in C#, on the .NET 2.0 dependency.
+<b>LiteHTTP</b> is an HTTP bot that is being programmed in C#, on the .NET 2.0 dependency. However; this modified branch uses .NET 4.0.
 
 Expected Features
 -----------------
