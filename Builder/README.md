@@ -1,16 +1,14 @@
-This is the builder for the bot. Below is a virus scan (created on a non-distributing scanner):
-http://v2.scan.majyx.net/?page=results&sid=472810
+This is the builder for the bot. Below is a virus scan (created on a non-distributing scanner):<br>
+https://spyralscanner.net/result.php?id=1bywJeQJtn
 
-Please keep in mind that the output bin is not FUD, and I don't expect it to be. To preserve it's current detection ratio, please only use sites that do not distribute samples. This means <b>DO NOT SCAN ON VIRUSTOTAL</b>.
+Note that the virus scan above is false positives. MSIL.gen and Gen:Variant are detections from programs that "create" malware, not contain it.
 
 Some of the safe scanners you can use (non-distributing) are:<br>
-http://v2.scan.majyx.net/<br>
 http://nodistribute.com<br>
-http://fuckingscan.me<br>
-http://hidemyfile.biz<br>
-http://razorscanner.com<br>
-http://scan4you.net<br>
-https://anonscanner.com<br>
-https://www.avdetect.com/<br>
+https://spyralscanner.net<br>
+http://alphaproducts.online/?page=scanner<br>
+http://avcheck.net - Not free<br>
+https://antiscan.me - Not free<br>
+
 
 If the site you wish to scan at is <b>not</b> listed here, <b>you probably shouldn't use it to scan malware</b>.

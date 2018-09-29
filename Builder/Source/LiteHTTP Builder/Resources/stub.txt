@@ -25,7 +25,7 @@ namespace LiteHTTP
 {
 	class Settings
     {
-        public static string panelurl = "#panelurl##gatepath#";
+        public static string panelurl = "#panelurl#";
         public static int reqinterval = #rint#;
         public static string botv = "v1.0.0";
         public static string edkey = "#encryptionkey#";
