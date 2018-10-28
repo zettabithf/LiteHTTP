@@ -1,5 +1,5 @@
 This is the builder for the bot. Below is a virus scan (created on a non-distributing scanner):<br>
-https://spyralscanner.net/result.php?id=1bywJeQJtn
+https://spyralscanner.net/result.php?id=SWSkfdj9Ks
 
 Note that the virus scan above is false positives. MSIL.gen and Gen:Variant are detections from programs that "create" malware, not contain it.
 

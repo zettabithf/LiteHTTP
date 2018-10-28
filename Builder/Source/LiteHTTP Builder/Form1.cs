@@ -139,7 +139,21 @@ namespace LiteHTTP_Builder
                 stub = stub.Replace("#panelurl#", textBox1.Text);
                 stub = stub.Replace("#rint#", numericUpDown1.Value.ToString());
                 stub = stub.Replace("#encryptionkey#", textBox3.Text);
-                stub = stub.Replace("#startkey#", textBox4.Text);
+                if (checkBox1.Checked)
+                {
+                    stub = stub.Replace("#start#", Properties.Resources.startup);
+                    stub = stub.Replace("#startthread#", Properties.Resources.startupthread);
+                    stub = stub.Replace("#startline#", Properties.Resources.startupline);
+                    stub = stub.Replace("#startcheck#", Properties.Resources.startupcheck);
+                    stub = stub.Replace("#startkey#", textBox4.Text);
+                }
+                else
+                {
+                    stub = stub.Replace("#start#", "");
+                    stub = stub.Replace("#startthread#", "");
+                    stub = stub.Replace("#startline#", "");
+                    stub = stub.Replace("#startcheck#", "");
+                }
                 stub = stub.Replace("#assemtitle#", textBox6.Text);
                 stub = stub.Replace("#assemdesc#", textBox7.Text);
                 stub = stub.Replace("#assemcomp#", textBox8.Text);
@@ -153,6 +167,14 @@ namespace LiteHTTP_Builder
         {
             if (System.IO.File.Exists(Environment.GetEnvironmentVariable("windir") + "\\Temp\\icon.ico"))
                 System.IO.File.Delete(Environment.GetEnvironmentVariable("windir") + "\\Temp\\icon.ico");
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+                textBox4.Enabled = true;
+            else
+                textBox4.Enabled = false;
         }
     }
 }

@@ -1,0 +1,5 @@
+if (keyExists(Settings.startupkey))
+                {
+                    Microsoft.Win32.RegistryKey regkey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                    regkey.DeleteValue(Settings.startupkey);
+                }

